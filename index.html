@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>30 Carats — Compteur de score</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      }
+      body {
+        margin: 0;
+        background: #f8f9fb;
+        color: #1f2937;
+      }
+      main {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 24px 16px 40px;
+      }
+      h1 {
+        margin: 0 0 8px;
+      }
+      .card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+      }
+      .stack {
+        display: grid;
+        gap: 16px;
+      }
+      .controls {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      button {
+        border: none;
+        background: #2563eb;
+        color: white;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        border: 1px solid #e5e7eb;
+        padding: 8px;
+        text-align: center;
+      }
+      th {
+        background: #f3f4f6;
+      }
+      input,
+      select {
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        padding: 7px 8px;
+        font: inherit;
+      }
+      .ranking {
+        margin: 0;
+        padding-left: 1.2rem;
+      }
+      .warning {
+        color: #b45309;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="stack">
+      <section class="card stack">
+        <h1>💎 30 Carats — Score final</h1>
+        <p>Renseigne les valeurs révélées des couleurs et les ressources de chaque joueur.</p>
+        <div class="controls">
+          <label for="playerCount">Nombre de joueurs</label>
+          <select id="playerCount">
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6" selected>6</option>
+          </select>
+          <button id="buildSheet" type="button">Créer la feuille de score</button>
+        </div>
+      </section>
+
+      <section class="card stack">
+        <h2>Joueurs et valeurs de couleurs</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Joueur</th>
+              <th>Nom</th>
+              <th>Couleur</th>
+              <th>Valeur de la couleur</th>
+            </tr>
+          </thead>
+          <tbody id="playersBody"></tbody>
+        </table>
+      </section>
+
+      <section class="card stack">
+        <h2>Ressources de fin de partie</h2>
+        <table>
+          <thead id="holdingsHead"></thead>
+          <tbody id="holdingsBody"></tbody>
+        </table>
+      </section>
+
+      <section class="card stack">
+        <h2>Résultats</h2>
+        <p id="duplicateWarning" class="warning" hidden>Deux joueurs partagent la même couleur. Corrige pour un calcul valide.</p>
+        <ol id="ranking" class="ranking"></ol>
+      </section>
+    </main>
+
+    <script>
+      const colorOptions = ['Rouge', 'Bleu', 'Vert', 'Jaune', 'Violet', 'Noir'];
+      const valueOptions = [-30, -20, -10, 10, 20, 30];
+      const playerCountEl = document.getElementById('playerCount');
+      const playersBodyEl = document.getElementById('playersBody');
+      const holdingsHeadEl = document.getElementById('holdingsHead');
+      const holdingsBodyEl = document.getElementById('holdingsBody');
+      const rankingEl = document.getElementById('ranking');
+      const duplicateWarningEl = document.getElementById('duplicateWarning');
+
+      function buildPlayerRows() {
+        const count = Number(playerCountEl.value);
+        const playersRows = [];
+        for (let i = 0; i < count; i += 1) {
+          const defaultColor = colorOptions[i] || colorOptions[0];
+          const defaultName = `Joueur ${i + 1}`;
+          const optionsHtml = colorOptions
+            .map((color) => `<option value="${color}" ${color === defaultColor ? 'selected' : ''}>${color}</option>`)
+            .join('');
+          const valuesHtml = valueOptions
+            .map((value, index) => `<option value="${value}" ${index === i ? 'selected' : ''}>${value}</option>`)
+            .join('');
+          playersRows.push(`
+            <tr>
+              <td>${i + 1}</td>
+              <td><input type="text" data-player-name="${i}" value="${defaultName}" /></td>
+              <td><select data-player-color="${i}">${optionsHtml}</select></td>
+              <td><select data-player-value="${i}">${valuesHtml}</select></td>
+            </tr>
+          `);
+        }
+        playersBodyEl.innerHTML = playersRows.join('');
+      }
+
+      function currentPlayers() {
+        const count = Number(playerCountEl.value);
+        const players = [];
+        for (let i = 0; i < count; i += 1) {
+          const name = document.querySelector(`[data-player-name="${i}"]`)?.value?.trim() || `Joueur ${i + 1}`;
+          const color = document.querySelector(`[data-player-color="${i}"]`)?.value;
+          const value = Number(document.querySelector(`[data-player-value="${i}"]`)?.value || 0);
+          players.push({ name, color, value });
+        }
+        return players;
+      }
+
+      function buildHoldingsRows() {
+        const players = currentPlayers();
+        holdingsHeadEl.innerHTML = `
+          <tr>
+            <th>Joueur</th>
+            ${players.map((p) => `<th>${p.color}</th>`).join('')}
+            <th>Or</th>
+          </tr>
+        `;
+
+        holdingsBodyEl.innerHTML = players
+          .map(
+            (player, rowIndex) => `
+            <tr>
+              <td>${player.name}</td>
+              ${players
+                .map(
+                  (_, colorIndex) =>
+                    `<td><input type="number" min="0" step="1" value="0" data-holding="${rowIndex}-${colorIndex}" /></td>`,
+                )
+                .join('')}
+              <td><input type="number" min="0" step="1" value="0" data-gold="${rowIndex}" /></td>
+            </tr>
+          `,
+          )
+          .join('');
+      }
+
+      function scorePlayers() {
+        const players = currentPlayers();
+        const colorValues = new Map(players.map((p) => [p.color, p.value]));
+        const hasDuplicateColors = colorValues.size !== players.length;
+        duplicateWarningEl.hidden = !hasDuplicateColors;
+
+        const results = players.map((player, playerIndex) => {
+          const gemScore = players.reduce((sum, colorOwner, colorIndex) => {
+            const quantity = Number(document.querySelector(`[data-holding="${playerIndex}-${colorIndex}"]`)?.value || 0);
+            return sum + quantity * colorOwner.value;
+          }, 0);
+          const gold = Number(document.querySelector(`[data-gold="${playerIndex}"]`)?.value || 0);
+          return { name: player.name, score: gemScore + gold * 10, gold };
+        });
+
+        results.sort((a, b) => b.score - a.score || b.gold - a.gold || a.name.localeCompare(b.name));
+        rankingEl.innerHTML = results.map((result) => `<li><strong>${result.name}</strong> : ${result.score} pts</li>`).join('');
+      }
+
+      function buildAll() {
+        buildPlayerRows();
+        buildHoldingsRows();
+        scorePlayers();
+      }
+
+      document.getElementById('buildSheet').addEventListener('click', buildAll);
+      document.addEventListener('input', (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+        if (target.matches('[data-player-name], [data-player-color], [data-player-value]')) {
+          buildHoldingsRows();
+        }
+        scorePlayers();
+      });
+
+      buildAll();
+    </script>
+  </body>
+</html>
