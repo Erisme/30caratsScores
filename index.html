@@ -122,7 +122,7 @@
 
       <section class="card stack">
         <h2>Résultats</h2>
-        <p id="duplicateWarning" class="warning" hidden>Deux joueurs partagent la même couleur. Corrige pour un calcul valide.</p>
+        <p id="duplicateWarning" class="warning" hidden>Deux joueurs partagent la même couleur. Veuillez corriger pour un calcul valide.</p>
         <ol id="ranking" class="ranking"></ol>
       </section>
     </main>
@@ -137,14 +137,27 @@
       const rankingEl = document.getElementById('ranking');
       const duplicateWarningEl = document.getElementById('duplicateWarning');
 
+      function escapeHtml(text) {
+        return String(text)
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#39;');
+      }
+
       function buildPlayerRows() {
         const count = Number(playerCountEl.value);
         const playersRows = [];
         for (let i = 0; i < count; i += 1) {
           const defaultColor = colorOptions[i] || colorOptions[0];
+          const safeDefaultColor = escapeHtml(defaultColor);
           const defaultName = `Joueur ${i + 1}`;
           const optionsHtml = colorOptions
-            .map((color) => `<option value="${color}" ${color === defaultColor ? 'selected' : ''}>${color}</option>`)
+            .map((color) => {
+              const safeColor = escapeHtml(color);
+              return `<option value="${safeColor}" ${safeColor === safeDefaultColor ? 'selected' : ''}>${safeColor}</option>`;
+            })
             .join('');
           const valuesHtml = valueOptions
             .map((value, index) => `<option value="${value}" ${index === i ? 'selected' : ''}>${value}</option>`)
@@ -178,7 +191,7 @@
         holdingsHeadEl.innerHTML = `
           <tr>
             <th>Joueur</th>
-            ${players.map((p) => `<th>${p.color}</th>`).join('')}
+            ${players.map((p) => `<th>${escapeHtml(p.color)}</th>`).join('')}
             <th>Or</th>
           </tr>
         `;
@@ -187,7 +200,7 @@
           .map(
             (player, rowIndex) => `
             <tr>
-              <td>${player.name}</td>
+              <td>${escapeHtml(player.name)}</td>
               ${players
                 .map(
                   (_, colorIndex) =>
@@ -206,18 +219,25 @@
         const colorValues = new Map(players.map((p) => [p.color, p.value]));
         const hasDuplicateColors = colorValues.size !== players.length;
         duplicateWarningEl.hidden = !hasDuplicateColors;
+        if (hasDuplicateColors) {
+          rankingEl.innerHTML = '';
+          return;
+        }
 
         const results = players.map((player, playerIndex) => {
           const gemScore = players.reduce((sum, colorOwner, colorIndex) => {
             const quantity = Number(document.querySelector(`[data-holding="${playerIndex}-${colorIndex}"]`)?.value || 0);
-            return sum + quantity * colorOwner.value;
+            return sum + quantity * (colorValues.get(colorOwner.color) || 0);
           }, 0);
           const gold = Number(document.querySelector(`[data-gold="${playerIndex}"]`)?.value || 0);
           return { name: player.name, score: gemScore + gold * 10, gold };
         });
 
-        results.sort((a, b) => b.score - a.score || b.gold - a.gold || a.name.localeCompare(b.name));
-        rankingEl.innerHTML = results.map((result) => `<li><strong>${result.name}</strong> : ${result.score} pts</li>`).join('');
+        const compareResults = (a, b) => b.score - a.score || b.gold - a.gold || a.name.localeCompare(b.name, 'fr');
+        results.sort(compareResults);
+        rankingEl.innerHTML = results
+          .map((result) => `<li><strong>${escapeHtml(result.name)}</strong> : ${result.score} pts</li>`)
+          .join('');
       }
 
       function buildAll() {
