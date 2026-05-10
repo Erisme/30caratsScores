@@ -31,6 +31,16 @@ jobs:
           push: true
           tags: ghcr.io/erisme/30carats-scores:latest
 
+      - name: Copy docker-compose.yml to NAS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.NAS_HOST }}
+          username: ${{ secrets.NAS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.NAS_PORT }}
+          source: "docker-compose.yml"
+          target: ${{ secrets.NAS_DEPLOY_PATH }}
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
         env:
@@ -44,17 +54,8 @@ jobs:
           envs: GHCR_TOKEN,GHCR_USER
           script: |
             export PATH=$PATH:/usr/local/bin:/usr/bin
+            mkdir -p ${{ secrets.NAS_DEPLOY_PATH }}
             docker login ghcr.io -u "$GHCR_USER" -p "$GHCR_TOKEN"
-            mkdir -p ${{ secrets.NAS_DEPLOY_PATH_30CARATS }}
-            cd ${{ secrets.NAS_DEPLOY_PATH_30CARATS }}
-            cat > docker-compose.yml << 'COMPOSE'
-            services:
-              app:
-                image: ghcr.io/erisme/30carats-scores:latest
-                container_name: 30carats-scores
-                ports:
-                  - "8083:80"
-                restart: unless-stopped
-            COMPOSE
+            cd ${{ secrets.NAS_DEPLOY_PATH }}
             docker compose pull
             docker compose up -d
