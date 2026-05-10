@@ -58,4 +58,4 @@ jobs:
             docker login ghcr.io -u "$GHCR_USER" -p "$GHCR_TOKEN"
             cd ${{ secrets.NAS_DEPLOY_PATH }}
             docker compose pull
-            docker compose up -d
+            docker compose up -d --force-recreate
