@@ -45,6 +45,16 @@ jobs:
           script: |
             export PATH=$PATH:/usr/local/bin:/usr/bin
             docker login ghcr.io -u "$GHCR_USER" -p "$GHCR_TOKEN"
+            mkdir -p ${{ secrets.NAS_DEPLOY_PATH_30CARATS }}
             cd ${{ secrets.NAS_DEPLOY_PATH_30CARATS }}
+            cat > docker-compose.yml << 'COMPOSE'
+            services:
+              app:
+                image: ghcr.io/erisme/30carats-scores:latest
+                container_name: 30carats-scores
+                ports:
+                  - "8083:80"
+                restart: unless-stopped
+            COMPOSE
             docker compose pull
             docker compose up -d
