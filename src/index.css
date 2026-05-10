@@ -1,0 +1,413 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* ── Palette 30 Carats – pierres précieuses et or ── */
+  --purple:       #7c3aed;   /* Améthyste */
+  --purple-dark:  #5b21b6;
+  --purple-deep:  #3b0764;
+  --gold:         #d4a017;   /* Or */
+  --gold-dark:    #a37d0e;
+  --gold-light:   #f5d84a;
+  --cream:        #fdf8f0;   /* Ivoire */
+  --cream-dark:   #ede8d8;
+  --navy:         #1e1b4b;   /* Indigo profond */
+  --navy-mid:     #312e81;
+
+  --bg:           #f7f3ec;
+  --surface:      #ffffff;
+  --text:         var(--navy);
+  --text-soft:    var(--navy-mid);
+  --muted:        #6b7280;
+  --border:       var(--gold);
+
+  --primary:      var(--purple);
+  --primary-hover: var(--purple-dark);
+
+  --success:      #16a34a;
+  --danger:       #dc2626;
+  --warning:      #ca8a04;
+
+  /* Couleurs des gemmes */
+  --gem-rouge:    #dc2626;
+  --gem-bleu:     #2563eb;
+  --gem-vert:     #16a34a;
+  --gem-blanc:    #ffffff;
+  --gem-violet:   #7c3aed;
+  --gem-noir:     #1f2937;
+
+  --radius:       14px;
+  --radius-lg:    20px;
+  --shadow:       0 4px 16px rgba(30, 27, 75, 0.12);
+  --shadow-gold:  0 4px 16px rgba(212, 160, 23, 0.2);
+}
+
+/* ══════════════════════════════════════════════
+   BASE
+══════════════════════════════════════════════ */
+html, body, #root {
+  height: 100%;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-image:
+    radial-gradient(circle at 15% 50%, rgba(124,58,237,0.07) 0%, transparent 50%),
+    radial-gradient(circle at 85% 20%, rgba(212,160,23,0.07) 0%, transparent 40%);
+}
+
+.app-shell { display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ══════════════════════════════════════════════
+   HEADER
+══════════════════════════════════════════════ */
+.app-header {
+  background: var(--purple);
+  border-bottom: 4px solid var(--gold);
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  height: 64px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(30, 27, 75, 0.25);
+}
+
+.app-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--gold-light);
+}
+
+.app-header .logo {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--gold);
+  letter-spacing: -0.04em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-shadow: 2px 2px 0 var(--purple-deep);
+  -webkit-text-stroke: 0.5px var(--purple-deep);
+}
+
+/* ══════════════════════════════════════════════
+   PAGE
+══════════════════════════════════════════════ */
+.page {
+  flex: 1;
+  padding: 28px 16px 56px;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.stack { display: grid; gap: 20px; }
+
+h1 {
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  margin-bottom: 6px;
+  color: var(--navy);
+}
+
+h2 {
+  font-size: 1rem;
+  font-weight: 900;
+  margin-bottom: 16px;
+  color: var(--surface);
+  background: var(--purple);
+  display: inline-block;
+  padding: 6px 20px 6px 16px;
+  border-radius: 4px 24px 24px 4px;
+  border-left: 4px solid var(--gold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: 2px 2px 0 var(--purple-deep);
+}
+
+.page-title {
+  margin-bottom: 20px;
+}
+
+.page-title p {
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* ══════════════════════════════════════════════
+   CARD
+══════════════════════════════════════════════ */
+.card {
+  background: var(--surface);
+  border: 2.5px solid var(--gold);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow), inset 0 0 0 4px rgba(212,160,23,0.06);
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.card::before,
+.card::after {
+  content: '';
+  position: absolute;
+  width: 12px; height: 12px;
+  border-color: var(--gold);
+  border-style: solid;
+  opacity: 0.6;
+}
+.card::before { top: 6px; left: 6px;  border-width: 2px 0 0 2px; }
+.card::after  { bottom: 6px; right: 6px; border-width: 0 2px 2px 0; }
+
+/* ══════════════════════════════════════════════
+   BOUTONS
+══════════════════════════════════════════════ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: var(--radius);
+  border: 2.5px solid transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 800;
+  transition: all 0.15s;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.btn:active { transform: translateY(2px); box-shadow: none !important; }
+.btn:disabled { opacity: 0.5; filter: grayscale(0.6); transform: none; box-shadow: none; cursor: not-allowed; }
+
+.btn-primary {
+  background: var(--purple);
+  color: white;
+  border-color: var(--purple-dark);
+  box-shadow: 0 4px 0 var(--purple-deep);
+}
+.btn-primary:hover:not(:disabled) { background: var(--purple-dark); }
+
+/* ══════════════════════════════════════════════
+   CONTROLS (setup)
+══════════════════════════════════════════════ */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.field-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--purple-dark);
+  white-space: nowrap;
+}
+
+/* ══════════════════════════════════════════════
+   INPUTS
+══════════════════════════════════════════════ */
+input[type="text"],
+input[type="number"],
+select {
+  background: var(--surface);
+  border: 2px solid var(--cream-dark);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 0.95rem;
+  padding: 8px 10px;
+  font-weight: 600;
+  font-family: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.18);
+}
+
+/* ══════════════════════════════════════════════
+   TABLEAUX
+══════════════════════════════════════════════ */
+.table-wrap {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 2px solid var(--gold);
+  box-shadow: var(--shadow-gold);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead tr {
+  background: linear-gradient(135deg, var(--purple) 0%, var(--purple-dark) 100%);
+  border-bottom: 2.5px solid var(--gold);
+}
+
+th {
+  padding: 10px 12px;
+  color: white;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+th:first-child { text-align: left; padding-left: 16px; }
+
+tbody tr {
+  border-bottom: 1.5px solid var(--cream-dark);
+  transition: background 0.12s;
+}
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: rgba(124,58,237,0.04); }
+
+td {
+  padding: 10px 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: center;
+  vertical-align: middle;
+}
+
+td:first-child { text-align: left; padding-left: 16px; font-weight: 700; }
+
+td input[type="text"],
+td select {
+  width: 100%;
+  min-width: 80px;
+}
+
+td input[type="number"] {
+  width: 68px;
+  text-align: center;
+}
+
+/* ══════════════════════════════════════════════
+   GEM COLOR BADGE
+══════════════════════════════════════════════ */
+.gem-dot {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+  vertical-align: middle;
+  border: 1.5px solid rgba(0,0,0,0.2);
+  flex-shrink: 0;
+}
+
+.gem-dot.Rouge  { background: var(--gem-rouge); }
+.gem-dot.Bleu   { background: var(--gem-bleu); }
+.gem-dot.Vert   { background: var(--gem-vert); }
+.gem-dot.Blanc  { background: var(--gem-blanc); border-color: #9ca3af; }
+.gem-dot.Violet { background: var(--gem-violet); }
+.gem-dot.Noir   { background: var(--gem-noir); }
+
+/* ══════════════════════════════════════════════
+   RANKING
+══════════════════════════════════════════════ */
+.ranking {
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.ranking-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: var(--surface);
+  border: 2px solid var(--cream-dark);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition: border-color 0.15s;
+}
+
+.ranking-item:first-child {
+  border-color: var(--gold);
+  box-shadow: var(--shadow-gold);
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+}
+
+.rank-pos {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--cream-dark);
+  color: var(--navy);
+  font-weight: 900;
+  font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.ranking-item:first-child .rank-pos {
+  background: var(--gold);
+  color: var(--navy);
+  box-shadow: 0 2px 0 var(--gold-dark);
+}
+
+.rank-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  flex: 1;
+  color: var(--navy);
+}
+
+.rank-score {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--purple);
+}
+
+.ranking-item:first-child .rank-score {
+  color: var(--gold-dark);
+}
+
+/* ══════════════════════════════════════════════
+   AVERTISSEMENT
+══════════════════════════════════════════════ */
+.warning {
+  color: #92400e;
+  background: #fef3c7;
+  border: 1.5px solid #fbbf24;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* ══════════════════════════════════════════════
+   UTILITAIRES
+══════════════════════════════════════════════ */
+.mb-20 { margin-bottom: 20px; }
+.text-muted { color: var(--muted); }
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  .page { padding-top: 20px; }
+  h1 { font-size: 1.6rem; }
+  .controls { gap: 8px; }
+  td input[type="number"] { width: 52px; }
+}

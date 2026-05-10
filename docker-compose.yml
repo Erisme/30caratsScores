@@ -1,0 +1,7 @@
+services:
+  app:
+    image: ghcr.io/erisme/30carats-scores:latest
+    container_name: 30carats-scores
+    ports:
+      - "8083:80"
+    restart: unless-stopped
